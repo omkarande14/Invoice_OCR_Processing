@@ -1,1 +1,33 @@
-[]
+[
+  {
+    "proposal_id": "REMOVE-HARDCODES",
+    "area": "entity_extraction",
+    "status": "accepted",
+    "process_outcome": "accepted",
+    "baseline_accuracy": 95.0,
+    "candidate_accuracy": 95.0,
+    "delta_accuracy": 0.0,
+    "paired_ci_lower": 0.0,
+    "paired_ci_upper": 0.0,
+    "is_statistically_significant": false,
+    "leakage_screen_passed": true,
+    "leakage_findings": [],
+    "cost_aware_accepted": true,
+    "latency_delta_seconds": -0.5,
+    "vision_fallback_calls": 0,
+    "case_regressions": [],
+    "rejection_reasons": [],
+    "pruning_recommendations": [
+      "Pruned hardcoded static PAN, hardcoded hospital name overrides, and static pixel thresholds (550, 300, 220.0, 350.0) in favor of dynamic relative layout geometry."
+    ],
+    "failure_deltas": {
+      "amount_parse": 0,
+      "totals_arithmetic": 0,
+      "hallucination": 0
+    },
+    "provenance": "real",
+    "git_commit_hash": "aff9aad",
+    "git_diff_hash": "",
+    "timestamp": 1790594845.2201421
+  }
+]
