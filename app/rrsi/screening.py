@@ -39,14 +39,14 @@ class LeakageScreening:
 
     @classmethod
     def _load_forbidden_hashes(cls) -> Tuple[str, set]:
-        cfg_path = Path("config/forbidden_hashes.json")
-        if cfg_path.exists():
-            try:
-                with open(cfg_path, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    return data.get("salt", ""), set(data.get("hashes", []))
-            except Exception:
-                pass
+        for p in [Path("data_private/config/forbidden_hashes.json"), Path("config/forbidden_hashes.json")]:
+            if p.exists():
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        data = json.load(f)
+                        return data.get("salt", ""), set(data.get("hashes", []))
+                except Exception:
+                    pass
         return "", set()
 
     @classmethod

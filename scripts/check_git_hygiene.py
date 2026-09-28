@@ -5,8 +5,10 @@ Fails on:
 1. Real GSTINs matching \b\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[0-9A-Z]\b
 2. Real PAN numbers matching \b[A-Z]{5}\d{4}[A-Z]\b
 3. Indian phone numbers
-4. Salted hashes of sensitive vendor and buyer names (from config/forbidden_hashes.json)
+4. Salted hashes of sensitive vendor and buyer names (when data_private/config/forbidden_hashes.json exists)
 5. Tracked private data paths (data_private/, data/deskewed/, venv/, .venv/, etc.)
+Supports:
+--history : Scans all historical commit messages and blob objects across repository history.
 """
 
 import re
@@ -14,6 +16,7 @@ import subprocess
 import sys
 import json
 import hashlib
+import argparse
 from pathlib import Path
 
 # RegEx for sensitive identifiers
@@ -38,22 +41,68 @@ FORBIDDEN_PATH_SUBSTRINGS = [
     "venv/",
     ".venv/",
     "scratch/",
-    "private_snapshots"
+    "private_snapshots",
+    "golden_outputs"
 ]
 
 def load_forbidden_hashes():
-    cfg_path = Path("config/forbidden_hashes.json")
-    if cfg_path.exists():
-        try:
-            with open(cfg_path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return data.get("salt", ""), set(data.get("hashes", []))
-        except Exception:
-            pass
+    # Priority: private config path, then legacy config path
+    for p in [Path("data_private/config/forbidden_hashes.json"), Path("config/forbidden_hashes.json")]:
+        if p.exists():
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    return data.get("salt", ""), set(data.get("hashes", []))
+            except Exception:
+                pass
     return "", set()
 
+def run_synthetic_canary_test() -> bool:
+    """Verifies that the regex checkers are functional and catch synthetic leaks."""
+    fake_gstin = "27ABCDE1234F1Z5"
+    fake_pan = "ABCDE1234F"
+    fake_phone = "9822012345"
+
+    assert bool(GSTIN_REGEX.search(fake_gstin)), "Canary failed: GSTIN regex broken"
+    assert bool(PAN_REGEX.search(fake_pan)), "Canary failed: PAN regex broken"
+    assert bool(PHONE_REGEX.search(fake_phone)), "Canary failed: PHONE regex broken"
+    assert fake_gstin not in SYNTHETIC_WHITELIST, "Canary failed: Whitelist collision"
+    return True
+
+def scan_text_lines(text: str, source_label: str, salt: str, forbidden_hashes: set) -> list[str]:
+    violations = []
+    lines = text.splitlines()
+    for line_no, line in enumerate(lines, 1):
+        if "re.compile" in line or "REGEX" in line or "pattern" in line or "SYNTHETIC_WHITELIST" in line:
+            continue
+
+        for match in GSTIN_REGEX.findall(line):
+            if match not in SYNTHETIC_WHITELIST:
+                violations.append(f"PII LEAK (GSTIN): Found '{match}' in {source_label}:{line_no}")
+
+        for match in PAN_REGEX.findall(line):
+            if match not in SYNTHETIC_WHITELIST:
+                violations.append(f"PII LEAK (PAN): Found '{match}' in {source_label}:{line_no}")
+
+        for match in PHONE_REGEX.findall(line):
+            if match not in SYNTHETIC_WHITELIST:
+                violations.append(f"PII LEAK (PHONE): Found '{match}' in {source_label}:{line_no}")
+
+        if salt and forbidden_hashes:
+            tokens = [t.lower().strip(" \t\r\n'\",;:.()[]{}") for t in line.split() if len(t.strip()) >= 4]
+            for token in tokens:
+                thash = hashlib.sha256((salt + token).encode("utf-8")).hexdigest()
+                if thash in forbidden_hashes:
+                    violations.append(f"FORBIDDEN ENTITY (Salted Hash): '{token}' in {source_label}:{line_no}")
+            for i in range(len(tokens) - 1):
+                bigram = f"{tokens[i]} {tokens[i+1]}"
+                bhash = hashlib.sha256((salt + bigram).encode("utf-8")).hexdigest()
+                if bhash in forbidden_hashes:
+                    violations.append(f"FORBIDDEN ENTITY (Salted Hash): '{bigram}' in {source_label}:{line_no}")
+
+    return violations
+
 def get_staged_or_tracked_files() -> list[str]:
-    # Check staged files if any, else check tracked files
     res = subprocess.run(["git", "diff", "--cached", "--name-only"], capture_output=True, text=True)
     files = [f.strip() for f in res.stdout.splitlines() if f.strip()]
     if not files:
@@ -61,60 +110,31 @@ def get_staged_or_tracked_files() -> list[str]:
         files = [f.strip() for f in res2.stdout.splitlines() if f.strip()]
     return files
 
-def check_hygiene() -> bool:
+def check_current_hygiene() -> bool:
+    run_synthetic_canary_test()
     files = get_staged_or_tracked_files()
     violations = []
     salt, forbidden_hashes = load_forbidden_hashes()
 
+    if not forbidden_hashes:
+        print("[*] Running in Public/CI mode: Regex + Synthetic Canaries active (private hash list omitted).")
+
     for f_str in files:
         p = Path(f_str)
-        # Check path restrictions
         norm_path = f_str.replace("\\", "/")
         for forbidden in FORBIDDEN_PATH_SUBSTRINGS:
             if forbidden in norm_path:
                 violations.append(f"FORBIDDEN FILE TRACKED: '{f_str}' is inside private/ignored directory '{forbidden}'.")
 
-        # Skip binary files, gitignore, forbidden hash file, and this hygiene checker itself
         if f_str in ["scripts/check_git_hygiene.py", "config/forbidden_hashes.json"] or p.suffix.lower() in [".png", ".jpg", ".pdf", ".pyc", ".zip"]:
             continue
 
         if p.exists() and p.is_file():
             try:
                 content = p.read_text(encoding="utf-8", errors="ignore")
+                violations.extend(scan_text_lines(content, f_str, salt, forbidden_hashes))
             except Exception:
                 continue
-
-            lines = content.splitlines()
-            for line_no, line in enumerate(lines, 1):
-                # Ignore lines defining regexes
-                if "re.compile" in line or "REGEX" in line or "pattern" in line:
-                    continue
-
-                for match in GSTIN_REGEX.findall(line):
-                    if match not in SYNTHETIC_WHITELIST:
-                        violations.append(f"PII LEAK (GSTIN): Found '{match}' in {f_str}:{line_no}")
-
-                for match in PAN_REGEX.findall(line):
-                    if match not in SYNTHETIC_WHITELIST:
-                        violations.append(f"PII LEAK (PAN): Found '{match}' in {f_str}:{line_no}")
-
-                for match in PHONE_REGEX.findall(line):
-                    if match not in SYNTHETIC_WHITELIST:
-                        violations.append(f"PII LEAK (PHONE): Found '{match}' in {f_str}:{line_no}")
-
-                # Salted hash name check (single tokens and bigrams)
-                if salt and forbidden_hashes:
-                    tokens = [t.lower().strip(" \t\r\n'\",;:.()[]{}") for t in line.split() if len(t.strip()) >= 4]
-                    for token in tokens:
-                        thash = hashlib.sha256((salt + token).encode("utf-8")).hexdigest()
-                        if thash in forbidden_hashes:
-                            violations.append(f"FORBIDDEN ENTITY NAME (Salted Hash Match): '{token}' in {f_str}:{line_no}")
-                    # Check bigrams
-                    for i in range(len(tokens) - 1):
-                        bigram = f"{tokens[i]} {tokens[i+1]}"
-                        bhash = hashlib.sha256((salt + bigram).encode("utf-8")).hexdigest()
-                        if bhash in forbidden_hashes:
-                            violations.append(f"FORBIDDEN ENTITY NAME (Salted Hash Match): '{bigram}' in {f_str}:{line_no}")
 
     if violations:
         print("[!] GIT HYGIENE CHECK FAILED:")
@@ -125,7 +145,65 @@ def check_hygiene() -> bool:
     print("[+] Git hygiene check passed cleanly: No un-anonymized PII, real GSTINs, or private data tracked.")
     return True
 
+def scan_full_history() -> bool:
+    print("[*] Performing full git history scan across all commits and blobs...")
+    run_synthetic_canary_test()
+    salt, forbidden_hashes = load_forbidden_hashes()
+    violations = []
+
+    res_commits = subprocess.run(["git", "log", "--all", "--format=%H"], capture_output=True, text=True)
+    commits = [c.strip() for c in res_commits.stdout.splitlines() if c.strip()]
+
+    print(f"    Scanning {len(commits)} commits for commit message and file blob leaks...")
+    scanned_blobs = set()
+
+    for commit in commits:
+        # Check commit message
+        res_msg = subprocess.run(["git", "log", "-1", "--format=%B", commit], capture_output=True, text=True)
+        msg_violations = scan_text_lines(res_msg.stdout, f"commit {commit[:7]} message", salt, forbidden_hashes)
+        violations.extend(msg_violations)
+
+        # Check all blobs in commit
+        res_tree = subprocess.run(["git", "ls-tree", "-r", commit], capture_output=True, text=True)
+        for line in res_tree.stdout.splitlines():
+            parts = line.split()
+            if len(parts) >= 4 and parts[1] == "blob":
+                blob_hash = parts[2]
+                file_path = line.split(maxsplit=3)[3].strip()
+
+                norm_path = file_path.replace("\\", "/")
+                for forbidden in FORBIDDEN_PATH_SUBSTRINGS:
+                    if forbidden in norm_path:
+                        violations.append(f"HISTORICAL FORBIDDEN FILE: '{file_path}' in commit {commit[:7]}")
+
+                if blob_hash in scanned_blobs:
+                    continue
+                scanned_blobs.add(blob_hash)
+
+                if any(file_path.endswith(ext) for ext in [".png", ".jpg", ".pdf", ".pyc", ".zip"]):
+                    continue
+                if file_path in ["scripts/check_git_hygiene.py", "config/forbidden_hashes.json"]:
+                    continue
+
+                res_blob = subprocess.run(["git", "cat-file", "-p", blob_hash], capture_output=True, text=True, errors="ignore")
+                blob_violations = scan_text_lines(res_blob.stdout, f"blob {blob_hash[:7]} ({file_path}) in {commit[:7]}", salt, forbidden_hashes)
+                violations.extend(blob_violations)
+
+    if violations:
+        print("[!] FULL GIT HISTORY AUDIT FAILED:")
+        for v in violations:
+            print(f"    - {v}")
+        return False
+
+    print(f"[+] Full git history audit PASSED cleanly: {len(commits)} commits and {len(scanned_blobs)} blobs verified zero-leak.")
+    return True
+
 if __name__ == "__main__":
-    if not check_hygiene():
+    parser = argparse.ArgumentParser(description="Git Hygiene and PII Leakage Auditor")
+    parser.add_argument("--history", action="store_true", help="Scan entire repository commit history and blob tree")
+    args = parser.parse_args()
+
+    success = scan_full_history() if args.history else check_current_hygiene()
+    if not success:
         sys.exit(1)
     sys.exit(0)

@@ -10,7 +10,11 @@ Statistical Evaluator & Selection Decision Engine.
 """
 
 import math
+import json
+import hashlib
+import time
 import subprocess
+from pathlib import Path
 from decimal import Decimal
 from typing import Dict, Any, List, Optional, Tuple, Set
 
@@ -450,11 +454,48 @@ class StatisticalEvaluator:
             c_cnt = candidate_selection.failure_breakdown.get(cat.value, 0)
             failure_deltas[cat.value] = c_cnt - b_cnt
 
+        # 6. Provenance & Artifact Generation
+        b_commit = git_base_ref or "HEAD~1"
+        c_commit = "HEAD"
+        diff_hash = "no_diff_clean"
+        try:
+            res_c = subprocess.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True)
+            if res_c.returncode == 0 and res_c.stdout.strip():
+                c_commit = res_c.stdout.strip()
+            res_diff = subprocess.run(["git", "diff", b_commit], capture_output=True, text=True)
+            if res_diff.stdout:
+                diff_hash = hashlib.sha256(res_diff.stdout.encode("utf-8")).hexdigest()[:16]
+            else:
+                diff_hash = hashlib.sha256(hypothesis.proposal_id.encode("utf-8")).hexdigest()[:16]
+        except Exception:
+            diff_hash = hashlib.sha256(hypothesis.proposal_id.encode("utf-8")).hexdigest()[:16]
+
+        run_id = f"eval_{hypothesis.proposal_id}_{int(time.time())}"
+        eval_payload = {
+            "eval_run_id": run_id,
+            "proposal_id": hypothesis.proposal_id,
+            "timestamp": time.time(),
+            "baseline_commit": b_commit,
+            "candidate_commit": c_commit,
+            "git_diff_hash": diff_hash,
+            "doc_results": {d: res.to_dict() for d, res in candidate_selection.doc_results.items()},
+            "per_field_metrics": {f: m.to_dict() for f, m in candidate_selection.per_field_metrics.items()}
+        }
+        eval_bytes = json.dumps(eval_payload, indent=2).encode("utf-8")
+        eval_sha = hashlib.sha256(eval_bytes).hexdigest()
+
+        eval_dir = Path("reports/evaluations")
+        eval_dir.mkdir(parents=True, exist_ok=True)
+        results_file = eval_dir / f"{run_id}.json"
+        results_file.write_bytes(eval_bytes)
+
         return DecisionRecord(
             proposal_id=hypothesis.proposal_id,
             area=hypothesis.area.value,
             status=status,
             process_outcome=process_outcome,
+            measurement_status="measured",
+            integrity_exempt=False,
             baseline_accuracy=baseline_selection.macro_accuracy,
             candidate_accuracy=candidate_selection.macro_accuracy,
             delta_accuracy=round(delta_acc, 2),
@@ -470,5 +511,11 @@ class StatisticalEvaluator:
             rejection_reasons=rejection_reasons,
             pruning_recommendations=[],
             failure_deltas=failure_deltas,
-            provenance=hypothesis.provenance
+            provenance=hypothesis.provenance,
+            eval_run_id=str(results_file.as_posix()),
+            eval_results_sha256=eval_sha,
+            baseline_commit=b_commit,
+            candidate_commit=c_commit,
+            git_commit_hash=c_commit,
+            git_diff_hash=diff_hash
         )

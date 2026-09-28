@@ -41,4 +41,8 @@ reports/*
 
 # Snapshots of unredacted state
 private_snapshots/
+golden_outputs/
+
+# Sensitive local config
+config/forbidden_hashes.json
 

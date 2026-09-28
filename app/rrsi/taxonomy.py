@@ -263,25 +263,36 @@ class DecisionRecord:
     area: str
     status: ExperimentStatus
     process_outcome: ProcessOutcome
-    baseline_accuracy: float
-    candidate_accuracy: float
-    delta_accuracy: float
-    paired_ci_lower: float
-    paired_ci_upper: float
-    is_statistically_significant: bool
-    leakage_screen_passed: bool
-    leakage_findings: List[str]
-    cost_aware_accepted: bool
-    latency_delta_seconds: float
-    vision_fallback_calls: int
-    case_regressions: List[str]
-    rejection_reasons: List[str]
-    pruning_recommendations: List[str]
-    failure_deltas: Dict[str, int]
+    measurement_status: str = "measured"  # "measured" | "not_measured"
+    integrity_exempt: bool = False  # True for leak/overfit removals
+    baseline_accuracy: Optional[float] = None
+    candidate_accuracy: Optional[float] = None
+    delta_accuracy: Optional[float] = None
+    paired_ci_lower: Optional[float] = None
+    paired_ci_upper: Optional[float] = None
+    is_statistically_significant: bool = False
+    leakage_screen_passed: bool = True
+    leakage_findings: List[str] = field(default_factory=list)
+    cost_aware_accepted: bool = False
+    latency_delta_seconds: Optional[float] = None
+    vision_fallback_calls: int = 0
+    case_regressions: List[str] = field(default_factory=list)
+    rejection_reasons: List[str] = field(default_factory=list)
+    pruning_recommendations: List[str] = field(default_factory=list)
+    failure_deltas: Dict[str, int] = field(default_factory=dict)
     provenance: str = "real"
+    eval_run_id: Optional[str] = None
+    eval_results_sha256: Optional[str] = None
+    baseline_commit: Optional[str] = None
+    candidate_commit: Optional[str] = None
     git_commit_hash: str = ""
     git_diff_hash: str = ""
     timestamp: float = field(default_factory=time.time)
 
     def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+        res = asdict(self)
+        if isinstance(self.status, ExperimentStatus):
+            res["status"] = self.status.value
+        if isinstance(self.process_outcome, ProcessOutcome):
+            res["process_outcome"] = self.process_outcome.value
+        return res
