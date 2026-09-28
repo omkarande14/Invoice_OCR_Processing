@@ -37,6 +37,7 @@ from app.rrsi import (
     DecisionRecord,
     ExperimentStatus
 )
+from app.rrsi.stats import wilson_interval
 
 
 import tempfile
@@ -60,30 +61,52 @@ def load_ground_truths(gt_dir: Path):
 def find_image_for_gt(gt: dict, project_root: Path) -> Optional[Path]:
     """Finds the actual source image path corresponding to a ground truth dictionary."""
     doc_id = gt.get("doc_id")
-    if doc_id:
-        man_path = project_root / "data_private" / "manifest_private.json"
-        if man_path.exists():
-            try:
-                with open(man_path, "r", encoding="utf-8") as f:
-                    manifest = json.load(f)
-                if doc_id in manifest:
-                    files = manifest[doc_id].get("files", [])
+    inv_num = gt.get("invoice_number") or gt.get("invoice_id")
+
+    # 1. Check data_private/manifest_private.json
+    man_path = project_root / "data_private" / "manifest_private.json"
+    if man_path.exists():
+        try:
+            with open(man_path, "r", encoding="utf-8") as f:
+                manifest = json.load(f)
+            if doc_id and doc_id in manifest:
+                files = manifest[doc_id].get("files", [])
+                for candidate_dir in [
+                    project_root / "data" / "deskewed",
+                    project_root / "data" / "test_uploads" / "staging" / "deskewed"
+                ]:
                     if files:
-                        for candidate_dir in [
-                            project_root / "data" / "deskewed",
-                            project_root / "data" / "test_uploads" / "staging" / "deskewed"
-                        ]:
-                            p = candidate_dir / files[0]
-                            if p.exists():
-                                return p
+                        p = candidate_dir / files[0]
+                        if p.exists():
+                            return p
+        except Exception:
+            pass
+
+    # 2. Check metadata files in data_private/ground_truth/
+    meta_dir = project_root / "data_private" / "ground_truth"
+    if meta_dir.exists():
+        for meta_file in meta_dir.glob("*_metadata.json"):
+            try:
+                with open(meta_file, "r", encoding="utf-8") as fp:
+                    meta = json.load(fp)
+                    if meta.get("doc_id") in [inv_num, doc_id]:
+                        fname = meta.get("filename")
+                        if fname:
+                            for candidate_dir in [
+                                project_root / "data" / "deskewed",
+                                project_root / "data" / "test_uploads" / "staging" / "deskewed"
+                            ]:
+                                p = candidate_dir / fname
+                                if p.exists():
+                                    return p
             except Exception:
                 pass
 
-    inv_num = gt.get("invoice_number") or gt.get("invoice_id")
     if not inv_num:
         return None
 
-    # Search in deskewed directories
+    # 3. Search in deskewed directories by full string and digit stems
+    digits = [d for d in re.findall(r"\d{4,}", inv_num)]
     for search_dir in [
         project_root / "data" / "deskewed",
         project_root / "data" / "test_uploads" / "staging" / "deskewed"
@@ -93,6 +116,9 @@ def find_image_for_gt(gt: dict, project_root: Path) -> Optional[Path]:
             for img in search_dir.glob("*.png"):
                 if clean_no in img.name or inv_num in img.name:
                     return img
+                for d in digits:
+                    if d in img.name:
+                        return img
 
     return None
 
@@ -109,7 +135,8 @@ def run_benchmark_audit():
     from app.ocr.invoice_pipeline import InvoicePipeline
 
     orchestrator = RRSIOrchestrator()
-    gt_dir = PROJECT_ROOT / "data" / "ground_truth"
+    private_gt = PROJECT_ROOT / "data_private" / "ground_truth"
+    gt_dir = private_gt if private_gt.exists() else PROJECT_ROOT / "data" / "ground_truth"
     gts = load_ground_truths(gt_dir)
 
     print(f"Loaded {len(gts)} ground truth annotation files from: {gt_dir}")
@@ -159,7 +186,8 @@ def run_benchmark_audit():
     print(f"    Table F1-Score:           {metrics.table_f1_score:.3f}")
     print(f"    Arithmetic Consistency:   {metrics.math_consistency_pct:.2f}%")
     print(f"    Total Execution Time:     {total_pipeline_time:.2f}s ({total_pipeline_time / metrics.sample_count:.2f}s / invoice)")
-    print(f"    Calculated Noise Floor:   +/-{orchestrator.evaluator.compute_noise_floor(metrics.sample_count, metrics.overall_accuracy_pct):.2f}%")
+    ci_low, ci_high = wilson_interval(int(round(metrics.overall_accuracy_pct * metrics.sample_count / 100)), metrics.sample_count)
+    print(f"    Wilson 95% CI:            [{ci_low*100:.1f}%, {ci_high*100:.1f}%] (N={metrics.sample_count})")
 
     print("\n[+] Fine-Grained Failure Breakdown by RRSI Taxonomy:")
     print("-" * 60)
