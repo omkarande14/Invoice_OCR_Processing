@@ -1,0 +1,44 @@
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+.pytest_cache/
+
+# Test output, dump logs, artifacts
+*.log
+*.txt
+!requirements.txt
+test_output.txt
+test_run_output.txt
+full_test_output.txt
+
+# Scratch and debug files
+scratch/
+
+# Private and Unanonymized Production Data (Strictly Gitignored)
+data_private/
+data/input/
+data/oriented/
+data/deskewed/
+data/processed/
+data/validation/
+data/test_uploads/
+data/benchmarks/
+data/ground_truth/
+data/ocr_results/
+tests_private/
+
+# Reports and temporary artifacts
+reports/*.json
+!reports/.gitkeep
+
+# Snapshots of unredacted state
+private_snapshots/
+

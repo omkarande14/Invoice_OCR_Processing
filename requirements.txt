@@ -1,0 +1,15 @@
+pymupdf
+Pillow
+pytest
+imagehash
+pytesseract
+opencv-python
+streamlit
+protobuf==3.20.2
+google-genai
+
+# GPU-accelerated OCR stack for NVIDIA RTX 3050 (CUDA 12 + cuDNN v8)
+--extra-index-url https://www.paddlepaddle.org.cn/packages/stable/cu120/
+paddlepaddle-gpu==2.6.2.post120
+paddleocr==2.9.1
+nvidia-cudnn-cu12==8.9.7.29

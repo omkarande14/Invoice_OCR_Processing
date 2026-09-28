@@ -1,0 +1,32 @@
+{
+  "metadata": {
+    "annotator": "Synthetic Generator",
+    "date": "2026-09-28",
+    "source": "from_image_blind",
+    "tier": "Tier_B"
+  },
+  "invoice_id": "INV-SYN-001",
+  "invoice_number": "INV-SYN-001",
+  "invoice_date": "2026-08-20",
+  "due_date": "2026-09-20",
+  "PO_number": "PO-SYN-999",
+  "customer_name": "ACME HEALTHCARE PRIVATE LIMITED",
+  "customer_gstin": "27AAPFU0939F1ZV",
+  "seller_name": "SYNTHETIC PHARMA SUPPLIES LTD",
+  "seller_gstin": "27AAPFU0939F1ZV",
+  "currency_code": "INR",
+  "invoice_amount": "1180.00",
+  "total_gst_amount": "180.00",
+  "round_off": "0.00",
+  "items": [
+    {
+      "description": "SYNTHETIC MEDICINE 500MG",
+      "hsn_sac": "30049099",
+      "quantity": 10,
+      "unit_price": "100.00",
+      "total_price": "1000.00",
+      "Discount": "0.00",
+      "Gst%": 18
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# .pre-commit-config.yaml
+# Versioned pre-commit hook configuration for Git Hygiene and PII leak prevention
+repos:
+  - repo: local
+    hooks:
+      - id: check-git-hygiene
+        name: Check Git Hygiene and PII Leakage
+        entry: python scripts/check_git_hygiene.py
+        language: system
+        stages: [commit]
+        always_run: true

@@ -1,0 +1,481 @@
+{
+  "manifest": [
+    {
+      "doc_id": "INV_fd02fd54",
+      "template_group": "T01",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": true
+    },
+    {
+      "doc_id": "INV_a5c0ae6a",
+      "template_group": "T02",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": true
+    },
+    {
+      "doc_id": "INV_3c5a77ac",
+      "template_group": "T03",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_d7f081e3",
+      "template_group": "T04",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 2,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_7200a8d1",
+      "template_group": "T05",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_eb98bc06",
+      "template_group": "T06",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_e92ad79d",
+      "template_group": "T07",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": true
+    },
+    {
+      "doc_id": "INV_81046572",
+      "template_group": "T08",
+      "split": "selection",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_00b9f774",
+      "template_group": "T09",
+      "split": "selection",
+      "tier": "Tier_B",
+      "page_count": 5,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_4cc9f3ad",
+      "template_group": "T10",
+      "split": "locked_test",
+      "tier": "Tier_B",
+      "page_count": 2,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_bc325113",
+      "template_group": "T10",
+      "split": "locked_test",
+      "tier": "Tier_B",
+      "page_count": 2,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_bf820006",
+      "template_group": "T11",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 2,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_22909692",
+      "template_group": "T12",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 2,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_2fa979eb",
+      "template_group": "T12",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 2,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_3f93ff61",
+      "template_group": "T12",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 2,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_9d1a66d2",
+      "template_group": "T12",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_adca903d",
+      "template_group": "T13",
+      "split": "selection",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_ab88b109",
+      "template_group": "T13",
+      "split": "selection",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_39e785ea",
+      "template_group": "T13",
+      "split": "selection",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_000b1f0b",
+      "template_group": "T13",
+      "split": "selection",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_0281dde0",
+      "template_group": "T13",
+      "split": "selection",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_8acc1d46",
+      "template_group": "T13",
+      "split": "selection",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_35e12582",
+      "template_group": "T13",
+      "split": "selection",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_d8638369",
+      "template_group": "T14",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_6adebc7c",
+      "template_group": "T14",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_d822b694",
+      "template_group": "T15",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_7abaa6d8",
+      "template_group": "T16",
+      "split": "locked_test",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_942bb99d",
+      "template_group": "T16",
+      "split": "locked_test",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_e627a21d",
+      "template_group": "T16",
+      "split": "locked_test",
+      "tier": "Tier_B",
+      "page_count": 2,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_548c01b3",
+      "template_group": "T16",
+      "split": "locked_test",
+      "tier": "Tier_B",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_e02c31bb",
+      "template_group": "T16",
+      "split": "locked_test",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_d05ac940",
+      "template_group": "T17",
+      "split": "selection",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_9782cb20",
+      "template_group": "T18",
+      "split": "selection",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_ec2daa9d",
+      "template_group": "T19",
+      "split": "locked_test",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_182ee202",
+      "template_group": "T19",
+      "split": "locked_test",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_deea4e74",
+      "template_group": "T20",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_f2f33f5f",
+      "template_group": "T20",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_8e40a2bd",
+      "template_group": "T20",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_cbbd7b20",
+      "template_group": "T20",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_0f99d813",
+      "template_group": "T20",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_efb5758d",
+      "template_group": "T20",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_8aa742ac",
+      "template_group": "T20",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_ff06d5f2",
+      "template_group": "T20",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_2d640122",
+      "template_group": "T20",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_abdc3c30",
+      "template_group": "T21",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_bfbe0b41",
+      "template_group": "T21",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_f1375513",
+      "template_group": "T21",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_683977e5",
+      "template_group": "T21",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_97d62746",
+      "template_group": "T22",
+      "split": "locked_test",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_38301e52",
+      "template_group": "T23",
+      "split": "selection",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_ff73bd8e",
+      "template_group": "T23",
+      "split": "selection",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_5e2f3610",
+      "template_group": "T23",
+      "split": "selection",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    },
+    {
+      "doc_id": "INV_5913d3da",
+      "template_group": "T24",
+      "split": "dev",
+      "tier": "Tier_A",
+      "page_count": 1,
+      "annotation_status": "unannotated",
+      "is_contaminated": false
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+# config/selection.yaml
+# Selection Gate Configuration for RRSI Self-Improvement Loop (Fail-Closed)
+
+gate:
+  min_macro_gain_ci_lower: 0.0      # Lower bound of 95% paired bootstrap CI on macro gain must be > 0
+  noise_multiplier: 2.0             # Mean macro gain must exceed 2x measured noise standard deviation
+  allow_field_regression: false     # No individual field can regress by more than its noise SD
+  max_dev_selection_gap: 0.05       # Widening gap between dev and selection gain indicates overfitting
+  bonferroni_correction: true       # Adjust alpha when testing k candidates simultaneously
+
+macro_weights:
+  # Written justification:
+  # - invoice_number (0.20): Core unique identifier for document matching and deduplication
+  # - invoice_date (0.15): Critical for payment terms, GST tax period, and cash discounts
+  # - invoice_amount (0.20): Primary financial liability and ledger posting value
+  # - party_gstin (0.15): Legal GST compliance, E-Way bill reconciliation, and ITC eligibility
+  # - party_name (0.10): Vendor master lookup and entity disambiguation
+  # - table_cells (0.20): Line-item reconciliation, HSN verification, and rate auditing
+  invoice_number: 0.20
+  invoice_date: 0.15
+  invoice_amount: 0.20
+  party_gstin: 0.15
+  party_name: 0.10
+  table_cells: 0.20
+
+cost:
+  cost_lambda: 0.05                 # Utility penalty per second of median latency increase
+  max_allowed_latency_s: 45.0       # Max acceptable runtime per invoice
+  max_cost_per_invoice_inr: 2.0     # Maximum allowable vision/LLM fallback cost per document
+  num_warmup_runs: 5                # Number of warmup runs for reliable median & p95 latency
+  max_vision_fallback_calls: 0      # Disallow LLM/vision fallback unless explicitly justified
+
+pruning:
+  min_corpus_docs: 40               # Minimum annotated documents required before rule pruning
+  min_corpus_templates: 10          # Minimum distinct template groups required
+  allow_zero_hit_ablation: true     # Zero-hit rules eligible only as ablation candidates
+
+whitelist:
+  # Known benign numeric constants (kernel sizes, image boundaries, color masks)
+  allowed_numeric_literals:
+    - 255
+    - 1000
+    - 3
+    - 5
+    - 7
+    - 0
+    - 1
