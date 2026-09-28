@@ -59,28 +59,40 @@ def load_ground_truths(gt_dir: Path):
 
 def find_image_for_gt(gt: dict, project_root: Path) -> Optional[Path]:
     """Finds the actual source image path corresponding to a ground truth dictionary."""
+    doc_id = gt.get("doc_id")
+    if doc_id:
+        man_path = project_root / "data_private" / "manifest_private.json"
+        if man_path.exists():
+            try:
+                with open(man_path, "r", encoding="utf-8") as f:
+                    manifest = json.load(f)
+                if doc_id in manifest:
+                    files = manifest[doc_id].get("files", [])
+                    if files:
+                        for candidate_dir in [
+                            project_root / "data" / "deskewed",
+                            project_root / "data" / "test_uploads" / "staging" / "deskewed"
+                        ]:
+                            p = candidate_dir / files[0]
+                            if p.exists():
+                                return p
+            except Exception:
+                pass
+
     inv_num = gt.get("invoice_number") or gt.get("invoice_id")
     if not inv_num:
         return None
 
-    # Canonical source image paths for test invoices
-    if "04531" in inv_num or "4531" in inv_num:
-        candidate = project_root / "data" / "test_uploads" / "staging" / "deskewed" / "invoice_4531 (1)_page_1_oriented_deskewed.png"
-        if candidate.exists():
-            return candidate
-
-    if "264882" in inv_num or "kundan" in str(inv_num).lower():
-        candidate = project_root / "data" / "test_uploads" / "staging" / "deskewed" / "264882_SB_DEENANATH MEDICAL STORES_20_08_2026_page_1_oriented_deskewed_customer_copy.png"
-        if candidate.exists():
-            return candidate
-
-    # Search in deskewed directory
-    deskewed_dir = project_root / "data" / "deskewed"
-    if deskewed_dir.exists():
-        clean_no = inv_num.replace("/", "_").replace("-", "_")
-        for img in deskewed_dir.glob("*.png"):
-            if clean_no in img.name or inv_num in img.name:
-                return img
+    # Search in deskewed directories
+    for search_dir in [
+        project_root / "data" / "deskewed",
+        project_root / "data" / "test_uploads" / "staging" / "deskewed"
+    ]:
+        if search_dir.exists():
+            clean_no = inv_num.replace("/", "_").replace("-", "_")
+            for img in search_dir.glob("*.png"):
+                if clean_no in img.name or inv_num in img.name:
+                    return img
 
     return None
 
