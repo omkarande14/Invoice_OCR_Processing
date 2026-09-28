@@ -110,9 +110,9 @@ def get_staged_or_tracked_files() -> list[str]:
         files = [f.strip() for f in res2.stdout.splitlines() if f.strip()]
     return files
 
-def check_current_hygiene() -> bool:
+def check_current_hygiene(specified_files: list[str] = None) -> bool:
     run_synthetic_canary_test()
-    files = get_staged_or_tracked_files()
+    files = specified_files if specified_files else get_staged_or_tracked_files()
     violations = []
     salt, forbidden_hashes = load_forbidden_hashes()
 
@@ -142,7 +142,7 @@ def check_current_hygiene() -> bool:
             print(f"    - {v}")
         return False
 
-    print("[+] Git hygiene check passed cleanly: No un-anonymized PII, real GSTINs, or private data tracked.")
+    print(f"[+] Git hygiene check passed cleanly: No un-anonymized PII, real GSTINs, or private data tracked ({len(files)} files checked).")
     return True
 
 def scan_full_history() -> bool:
@@ -201,9 +201,10 @@ def scan_full_history() -> bool:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Git Hygiene and PII Leakage Auditor")
     parser.add_argument("--history", action="store_true", help="Scan entire repository commit history and blob tree")
+    parser.add_argument("files", nargs="*", default=None, help="Files to scan (passed by pre-commit)")
     args = parser.parse_args()
 
-    success = scan_full_history() if args.history else check_current_hygiene()
+    success = scan_full_history() if args.history else check_current_hygiene(args.files)
     if not success:
         sys.exit(1)
     sys.exit(0)

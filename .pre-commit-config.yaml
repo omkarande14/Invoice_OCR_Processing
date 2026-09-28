@@ -7,5 +7,5 @@ repos:
         name: Check Git Hygiene and PII Leakage
         entry: python scripts/check_git_hygiene.py
         language: system
-        stages: [commit]
-        always_run: true
+        stages: [pre-commit]
+        pass_filenames: true
