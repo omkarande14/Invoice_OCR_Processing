@@ -341,6 +341,24 @@ class StatisticalEvaluator:
 
         return metrics, failures
 
+    @staticmethod
+    def _load_selection_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
+        """Loads gate, cost, and macro weight configurations from config/selection.yaml."""
+        import yaml
+        paths = [
+            config_path,
+            Path("config/selection.yaml"),
+            Path("data_private/config/selection.yaml")
+        ]
+        for p in paths:
+            if p and Path(p).exists():
+                try:
+                    with open(p, "r", encoding="utf-8") as f:
+                        return yaml.safe_load(f) or {}
+                except Exception:
+                    pass
+        return {}
+
     def decide_acceptance(
         self,
         hypothesis: ProposalHypothesis,
@@ -349,21 +367,38 @@ class StatisticalEvaluator:
         baseline_selection: Optional[EvaluationMetrics] = None,
         candidate_selection: Optional[EvaluationMetrics] = None,
         template_groups: Optional[Dict[str, str]] = None,
-        git_base_ref: Optional[str] = None
+        git_base_ref: Optional[str] = None,
+        config_path: Optional[Path] = None,
+        pruning_recommendations: Optional[List[str]] = None,
+        ledger_breakage_explanations: Optional[Dict[str, str]] = None
     ) -> DecisionRecord:
         """
-        Selection Gate Engine (Fail-Closed):
+        Selection Gate Engine (Fail-Closed, driven by config/selection.yaml):
         1. Raises ValueError if baseline_selection or candidate_selection is absent.
         2. Retrieves candidate diff via `git diff <base>..HEAD`; rejects empty diff as 'no change'.
         3. Paired Cluster Bootstrap CI on macro gain (lower bound > 0 and mean gain > 2x noise SD).
-        4. Case-level regression check.
-        5. Cost-aware utility penalty via cost_lambda.
+        4. Per-field no-regression rule: rejects if any field accuracy regresses beyond noise.
+        5. Case-level regression check: listed and requires net gain survival + ledger justification.
+        6. Cost-aware utility penalty via cost_lambda and vision fallback call enforcement.
+        7. Pruning recommendations wired to decision record.
         """
         # 1. Require Selection-Split Metrics
         if baseline_selection is None or candidate_selection is None:
             raise ValueError(
                 "SELECTION GATE ERROR: Selection-split metrics are required; refusing to decide on dev set alone."
             )
+
+        cfg = self._load_selection_config(config_path)
+        gate_cfg = cfg.get("gate", {})
+        cost_cfg = cfg.get("cost", {})
+
+        noise_multiplier = float(gate_cfg.get("noise_multiplier", 2.0))
+        min_ci_lower = float(gate_cfg.get("min_macro_gain_ci_lower", 0.0))
+        allow_field_regression = bool(gate_cfg.get("allow_field_regression", False))
+        max_dev_selection_gap = float(gate_cfg.get("max_dev_selection_gap", 0.05))
+
+        cost_lambda = float(cost_cfg.get("cost_lambda", self.cost_lambda))
+        max_vision_calls = int(cost_cfg.get("max_vision_fallback_calls", 0))
 
         rejection_reasons: List[str] = []
         process_outcome = ProcessOutcome.ACCEPTED
@@ -405,43 +440,77 @@ class StatisticalEvaluator:
                 f"Baseline ({baseline_selection.macro_accuracy}%). Delta: {delta_acc:.2f}%."
             )
             process_outcome = ProcessOutcome.INSIGNIFICANT
-        elif ci_lower <= 0.0:
+        elif ci_lower <= min_ci_lower:
             rejection_reasons.append(
-                f"NOT STATISTICALLY SIGNIFICANT: 95% paired bootstrap CI lower bound ({ci_lower:.4f}) <= 0."
+                f"NOT STATISTICALLY SIGNIFICANT: 95% paired bootstrap CI lower bound ({ci_lower:.4f}) <= {min_ci_lower}."
             )
             process_outcome = ProcessOutcome.INSIGNIFICANT
-        elif mean_delta <= (2.0 * noise_sd) and noise_sd > 0.0:
+        elif mean_delta <= (noise_multiplier * noise_sd) and noise_sd > 0.0:
             rejection_reasons.append(
-                f"BELOW 2X NOISE SD: Mean gain ({mean_delta:.4f}) <= 2x noise standard deviation ({2.0 * noise_sd:.4f})."
+                f"BELOW {noise_multiplier}X NOISE SD: Mean gain ({mean_delta:.4f}) <= {noise_multiplier}x noise SD ({noise_multiplier * noise_sd:.4f})."
             )
             process_outcome = ProcessOutcome.INSIGNIFICANT
 
-        # 4. Case-Level Regression Tracking
+        # 4. Per-Field No-Regression Check
+        field_regressions: List[str] = []
+        if not allow_field_regression:
+            for f_name, b_fm in baseline_selection.per_field_metrics.items():
+                c_fm = candidate_selection.per_field_metrics.get(f_name)
+                if c_fm and c_fm.accuracy < b_fm.accuracy:
+                    f_drop = b_fm.accuracy - c_fm.accuracy
+                    field_regressions.append(f"Field '{f_name}' regressed by {f_drop:.2f}% (from {b_fm.accuracy}% to {c_fm.accuracy}%)")
+
+            if field_regressions:
+                rejection_reasons.append(
+                    f"PER-FIELD REGRESSION DETECTED: {len(field_regressions)} field(s) regressed: {'; '.join(field_regressions[:3])}."
+                )
+                process_outcome = ProcessOutcome.REGRESSION_DETECTED
+
+        # 5. Case-Level Regression Tracking
         case_regressions: List[str] = []
+        unexplained_case_regressions: List[str] = []
+        ledger_explanations = ledger_breakage_explanations or {}
+
         for doc_id, b_doc in baseline_selection.doc_results.items():
             c_doc = candidate_selection.doc_results.get(doc_id)
             if c_doc:
                 for f_name, b_val in b_doc.field_outcomes.items():
                     c_val = c_doc.field_outcomes.get(f_name, False)
                     if b_val and not c_val:
+                        case_key = f"{doc_id}:{f_name}"
                         case_regressions.append(f"Doc '{doc_id}' field '{f_name}' regressed from True to False")
+                        if case_key not in ledger_explanations and doc_id not in ledger_explanations:
+                            unexplained_case_regressions.append(case_key)
 
         if case_regressions:
-            rejection_reasons.append(
-                f"CASE REGRESSIONS DETECTED: {len(case_regressions)} previously correct fields broken in candidate."
-            )
-            process_outcome = ProcessOutcome.REGRESSION_DETECTED
+            if unexplained_case_regressions:
+                rejection_reasons.append(
+                    f"CASE REGRESSIONS DETECTED: {len(case_regressions)} previously correct fields broken without ledger explanation "
+                    f"(Unexplained: {', '.join(unexplained_case_regressions[:3])})."
+                )
+                process_outcome = ProcessOutcome.REGRESSION_DETECTED
+            elif ci_lower <= 0.0:
+                rejection_reasons.append(
+                    f"CASE REGRESSIONS DETECTED: Breakage was explained in ledger, but net gain did not survive paired CI test (CI low: {ci_lower:.4f})."
+                )
+                process_outcome = ProcessOutcome.REGRESSION_DETECTED
 
-        # 5. Cost-Aware Acceptance
+        # 6. Cost-Aware Acceptance & Vision Fallback Enforcement
         latency_delta = round(candidate_selection.runtime_median_seconds - baseline_selection.runtime_median_seconds, 2)
-        cost_penalty = self.cost_lambda * max(0.0, latency_delta)
+        cost_penalty = cost_lambda * max(0.0, latency_delta)
         net_utility = delta_acc - (cost_penalty * 100.0)
         cost_accepted = net_utility >= 0.0
 
         if not cost_accepted:
             rejection_reasons.append(
                 f"COST UTILITY NEGATIVE: Net utility ({net_utility:.2f}%) < 0 after latency penalty "
-                f"(+{latency_delta}s @ lambda={self.cost_lambda})."
+                f"(+{latency_delta}s @ lambda={cost_lambda})."
+            )
+            process_outcome = ProcessOutcome.COST_REJECTED
+
+        if candidate_selection.vision_fallback_calls > max_vision_calls:
+            rejection_reasons.append(
+                f"EXCESSIVE VISION FALLBACK CALLS: {candidate_selection.vision_fallback_calls} calls exceed configured limit ({max_vision_calls})."
             )
             process_outcome = ProcessOutcome.COST_REJECTED
 
@@ -509,7 +578,7 @@ class StatisticalEvaluator:
             vision_fallback_calls=candidate_selection.vision_fallback_calls,
             case_regressions=case_regressions,
             rejection_reasons=rejection_reasons,
-            pruning_recommendations=[],
+            pruning_recommendations=pruning_recommendations or [],
             failure_deltas=failure_deltas,
             provenance=hypothesis.provenance,
             eval_run_id=str(results_file.as_posix()),

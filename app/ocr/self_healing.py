@@ -190,17 +190,18 @@ class SelfHealingEngine:
                 assigned_gstins = {buyer.get("gstin"), vendor.get("gstin")}
                 unassigned = [c for c in gstin_candidates if c["gstin"] not in assigned_gstins]
 
-                all_xs = [pt[0] for l in extracted_lines for pt in l.get("bbox", [])] if extracted_lines else []
+                all_xs = [pt[0] for l in all_ocr_lines for pt in (l.get("bbox") or l.get("box") or [])] if all_ocr_lines else []
                 page_width = max(all_xs) if all_xs else 1000.0
                 mid_x = page_width * 0.5
-                all_ys = [pt[1] for l in extracted_lines for pt in l.get("bbox", [])] if extracted_lines else []
+                all_ys = [pt[1] for l in all_ocr_lines for pt in (l.get("bbox") or l.get("box") or [])] if all_ocr_lines else []
                 page_height = max(all_ys) if all_ys else 1000.0
                 header_y_limit = page_height * 0.35
 
                 for cand in unassigned:
                     g = cand["gstin"]
-                    ymin = cand["bbox"][0][1] if cand["bbox"] and len(cand["bbox"]) > 0 else 0
-                    xmin = cand["bbox"][0][0] if cand["bbox"] and len(cand["bbox"]) > 0 else 0
+                    c_box = cand.get("bbox") or cand.get("box") or []
+                    ymin = min(p[1] for p in c_box) if c_box else 0
+                    xmin = min(p[0] for p in c_box) if c_box else 0
 
                     if not buyer.get("gstin") and (xmin > mid_x or ymin > header_y_limit):
                         buyer["gstin"] = g

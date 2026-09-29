@@ -11,6 +11,7 @@ Comprehensive Unit Tests for the RRSI Framework:
 
 import tempfile
 import pytest
+import hashlib
 from pathlib import Path
 
 from app.rrsi import (
@@ -145,8 +146,18 @@ def test_leakage_screening_detects_hardcoded_sample_tokens():
     assert passed
     assert len(findings) == 0
 
-    leaky_code = "if 'WMP/B/04531' in text: return 'WMP/B/04531'"
-    passed, findings = LeakageScreening.audit_code_changes(leaky_code)
+    # Synthetic forbidden token passed via runtime forbidden hashes
+    salt = "TEST_SALT_MOCK_"
+    token = "SYNTH_LEAKY_TOKEN_01"
+    norm = "synthleakytoken01"
+    h = hashlib.sha256((salt + norm).encode("utf-8")).hexdigest()
+
+    leaky_code = f"if '{token}' in text: return '{token}'"
+    passed, findings = LeakageScreening.audit_code_changes(
+        leaky_code,
+        salt=salt,
+        forbidden_hashes={h}
+    )
     assert not passed
     assert any("DATA LEAKAGE DETECTED" in f for f in findings)
 
@@ -155,30 +166,45 @@ def test_leakage_screening_detects_coordinate_overfitting():
     overfitted_code = "if ymin >= 145 and ymax <= 320: return crop[120:850]"
     passed, findings = LeakageScreening.audit_code_changes(overfitted_code)
     assert not passed
-    assert any("COORDINATE OVERFITTING WARNING" in f for f in findings)
+    assert any("COORDINATE OVERFITTING DETECTED" in f for f in findings)
 
 
 def test_generalization_split_screening():
     # Healthy generalization
-    passed, _ = LeakageScreening.audit_split_generalization(calibration_delta=3.5, holdout_delta=2.8)
+    passed, _ = LeakageScreening.compare_dev_vs_selection_gain(
+        dev_gain=0.035, selection_gain=0.028, selection_ci_lower=0.015
+    )
     assert passed
 
-    # Regression on holdout set
-    passed, msg = LeakageScreening.audit_split_generalization(calibration_delta=4.0, holdout_delta=-1.2)
+    # Regression / CI lower bound <= 0
+    passed, msg = LeakageScreening.compare_dev_vs_selection_gain(
+        dev_gain=0.040, selection_gain=-0.012, selection_ci_lower=-0.025
+    )
     assert not passed
-    assert "GENERALIZATION FAILURE" in msg
+    assert "GENERALIZATION REJECTED" in msg
 
-    # Disproportionate overfit (calibration high, holdout negligible)
-    passed, msg = LeakageScreening.audit_split_generalization(calibration_delta=8.0, holdout_delta=0.5)
+    # Disproportionate overfit (dev high, selection gain gap > max_gap)
+    passed, msg = LeakageScreening.compare_dev_vs_selection_gain(
+        dev_gain=0.080, selection_gain=0.005, selection_ci_lower=0.001, max_gap=0.05
+    )
     assert not passed
-    assert "LEAKAGE/OVERFITTING DETECTED" in msg
+    assert "Dev-selection gap" in msg
 
 
-def test_pruning_analyzer_identifies_regex_redundancy():
-    patterns = [r"INV-[0-9]+", r".*invoice.*", r"INV-[0-9]+"]
-    recommendations = PruningAnalyzer.analyze_regex_redundancy(patterns)
-    assert len(recommendations) > 0
-    assert any("PRUNING OPPORTUNITY" in r for r in recommendations)
+def test_pruning_analyzer_identifies_rule_ablation_candidates():
+    rule_counts = {"rule_legacy_tax": 0, "rule_modern_gst": 100}
+    # Below corpus size -> insufficient evidence
+    res_insufficient = PruningAnalyzer.audit_rule_ablation_candidates(
+        rule_counts, corpus_doc_count=10, corpus_template_count=2
+    )
+    assert res_insufficient["status"] == "INSUFFICIENT_EVIDENCE"
+
+    # Sufficient corpus -> identifies zero-hit candidates
+    res_sufficient = PruningAnalyzer.audit_rule_ablation_candidates(
+        rule_counts, corpus_doc_count=50, corpus_template_count=15
+    )
+    assert res_sufficient["status"] == "CANDIDATES_IDENTIFIED"
+    assert "rule_legacy_tax" in res_sufficient["candidates"]
 
 
 # -----------------------------------------------------------------------------

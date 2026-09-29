@@ -90,3 +90,69 @@ def test_selection_gate_requires_selection_split():
             baseline_selection=None,
             candidate_selection=None
         )
+
+
+def test_selection_gate_per_field_regression_rejection():
+    evaluator = StatisticalEvaluator()
+    hypo = ProposalHypothesis(
+        proposal_id="PROP-102",
+        area=PipelineArea.ENTITY_EXTRACTION,
+        title="Field regression",
+        description="Testing per-field regression",
+        rationale="Unit test"
+    )
+    # Baseline selection has 100% on both fields
+    gt = [
+        {"invoice_id": "1", "invoice_number": "A", "invoice_date": "2026-08-01"},
+        {"invoice_id": "2", "invoice_number": "B", "invoice_date": "2026-08-02"}
+    ]
+    base_pred = [
+        {"invoice_id": "1", "invoice_number": "A", "invoice_date": "2026-08-01"},
+        {"invoice_id": "2", "invoice_number": "B", "invoice_date": "2026-08-02"}
+    ]
+    # Candidate breaks invoice_date on invoice 2
+    cand_pred = [
+        {"invoice_id": "1", "invoice_number": "A", "invoice_date": "2026-08-01"},
+        {"invoice_id": "2", "invoice_number": "B", "invoice_date": "wrong_date"}
+    ]
+    m_base, _ = evaluator.evaluate_predictions(base_pred, gt)
+    m_cand, _ = evaluator.evaluate_predictions(cand_pred, gt)
+
+    rec = evaluator.decide_acceptance(
+        hypothesis=hypo,
+        baseline_dev=m_base,
+        candidate_dev=m_cand,
+        baseline_selection=m_base,
+        candidate_selection=m_cand
+    )
+    assert rec.status == ExperimentStatus.REJECTED
+    assert any("PER-FIELD REGRESSION DETECTED" in r for r in rec.rejection_reasons)
+
+
+def test_selection_gate_case_level_regression_without_explanation():
+    evaluator = StatisticalEvaluator()
+    hypo = ProposalHypothesis(
+        proposal_id="PROP-103",
+        area=PipelineArea.ENTITY_EXTRACTION,
+        title="Case regression",
+        description="Testing case-level regression",
+        rationale="Unit test"
+    )
+    gt = [{"invoice_id": "doc_1", "invoice_number": "A"}]
+    base_pred = [{"invoice_id": "doc_1", "invoice_number": "A"}]
+    cand_pred = [{"invoice_id": "doc_1", "invoice_number": "WRONG"}]
+
+    m_base, _ = evaluator.evaluate_predictions(base_pred, gt)
+    m_cand, _ = evaluator.evaluate_predictions(cand_pred, gt)
+
+    rec = evaluator.decide_acceptance(
+        hypothesis=hypo,
+        baseline_dev=m_base,
+        candidate_dev=m_cand,
+        baseline_selection=m_base,
+        candidate_selection=m_cand,
+        ledger_breakage_explanations=None  # no explanation
+    )
+    assert rec.status == ExperimentStatus.REJECTED
+    assert any("CASE REGRESSIONS DETECTED" in r for r in rec.rejection_reasons)
+

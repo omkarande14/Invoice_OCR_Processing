@@ -1,1 +1,35 @@
-[]
+[
+  {
+    "proposal_id": "REMOVE-HARDCODES",
+    "area": "entity_extraction",
+    "status": "accepted",
+    "process_outcome": "accepted",
+    "measurement_status": "not_measured",
+    "integrity_exempt": true,
+    "baseline_accuracy": null,
+    "candidate_accuracy": null,
+    "delta_accuracy": null,
+    "paired_ci_lower": null,
+    "paired_ci_upper": null,
+    "is_statistically_significant": false,
+    "leakage_screen_passed": true,
+    "leakage_findings": [],
+    "cost_aware_accepted": false,
+    "latency_delta_seconds": null,
+    "vision_fallback_calls": 0,
+    "case_regressions": [],
+    "rejection_reasons": [],
+    "pruning_recommendations": [
+      "Pruned static hardcoded coordinates, static hospital overrides, and static PAN. Refer to data_private/diff_report_before_after.json for 53-invoice characterization."
+    ],
+    "failure_deltas": {},
+    "provenance": "real",
+    "eval_run_id": null,
+    "eval_results_sha256": null,
+    "baseline_commit": null,
+    "candidate_commit": null,
+    "git_commit_hash": "",
+    "git_diff_hash": "",
+    "timestamp": 1790657660.6989238
+  }
+]

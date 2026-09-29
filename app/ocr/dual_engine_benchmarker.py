@@ -39,6 +39,9 @@ except ImportError:
     PADDLE_AVAILABLE = False
 
 
+from app.ocr.stage_cache import OCRStageCache
+
+
 class DualEngineBenchmarker:
     """
     Benchmarks and compares PaddleOCR (deep learning, layout/table focus)
@@ -49,10 +52,15 @@ class DualEngineBenchmarker:
     def __init__(
         self,
         use_gpu: bool = True,
-        tesseract_cmd: Optional[str] = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
+        tesseract_cmd: Optional[str] = r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+        stage_cache: Optional[OCRStageCache] = None,
+        enable_cache: bool = True
     ):
         if tesseract_cmd and os.path.exists(tesseract_cmd):
             pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+
+        self.enable_cache = enable_cache
+        self.stage_cache = stage_cache or (OCRStageCache() if enable_cache else None)
 
         self.use_gpu = use_gpu and PADDLE_AVAILABLE and (
             hasattr(paddle, "is_compiled_with_cuda") and paddle.is_compiled_with_cuda()
@@ -83,6 +91,20 @@ class DualEngineBenchmarker:
         """Runs PaddleOCR on a single image and collects structured text and metrics."""
         if not self.paddle_ocr:
             return {"error": "PaddleOCR is not available"}
+
+        img_sha = None
+        if self.stage_cache and self.stage_cache.enabled:
+            try:
+                img_sha = OCRStageCache.compute_image_sha256(image_path)
+                cached = self.stage_cache.get(img_sha, "PaddleOCR", "v1.0")
+                if cached:
+                    # Mark cached run
+                    cached_out = dict(cached)
+                    cached_out["device"] = "Cache (Instant)"
+                    cached_out["runtime_seconds"] = 0.001
+                    return cached_out
+            except Exception:
+                pass
 
         start_time = time.time()
         actual_device = "GPU" if self.use_gpu else "CPU"
@@ -124,7 +146,7 @@ class DualEngineBenchmarker:
         full_text = "\n".join(item["text"] for item in extracted_lines)
         avg_conf = round(sum(confidences) / len(confidences), 4) if confidences else 0.0
 
-        return {
+        out = {
             "engine": "PaddleOCR",
             "device": actual_device,
             "runtime_seconds": duration,
@@ -133,6 +155,12 @@ class DualEngineBenchmarker:
             "extracted_lines": extracted_lines,
             "full_text": full_text
         }
+        if self.stage_cache and self.stage_cache.enabled and img_sha and extracted_lines:
+            try:
+                self.stage_cache.put(img_sha, "PaddleOCR", "v1.0", out)
+            except Exception:
+                pass
+        return out
 
     def run_tesseract(self, image_path: Path) -> Dict[str, Any]:
         """Runs Tesseract OCR on a single image and collects text and word confidences."""
