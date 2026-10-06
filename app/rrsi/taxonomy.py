@@ -273,10 +273,10 @@ class DecisionRecord:
     is_statistically_significant: bool = False
     leakage_screen_passed: bool = True
     leakage_findings: List[str] = field(default_factory=list)
-    cost_aware_accepted: bool = False
+    cost_aware_accepted: Optional[bool] = None
     latency_delta_seconds: Optional[float] = None
     vision_fallback_calls: int = 0
-    case_regressions: List[str] = field(default_factory=list)
+    case_regressions: List[Any] = field(default_factory=list)
     rejection_reasons: List[str] = field(default_factory=list)
     pruning_recommendations: List[str] = field(default_factory=list)
     failure_deltas: Dict[str, int] = field(default_factory=dict)

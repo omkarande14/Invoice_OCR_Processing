@@ -135,7 +135,7 @@ class ExperimentLedger:
             f"- **Candidate Accuracy**: `{c_acc}`",
             f"- **Statistically Significant**: `{'YES' if decision.is_statistically_significant else 'NO'}`",
             f"- **Leakage Screen**: `{'PASSED' if decision.leakage_screen_passed else 'FAILED'}`",
-            f"- **Cost-Aware Acceptance**: `{'PASSED' if decision.cost_aware_accepted else 'FAILED'}` (dt: {dt_str})",
+            f"- **Cost-Aware Acceptance**: `{'N/A' if decision.cost_aware_accepted is None else ('PASSED' if decision.cost_aware_accepted else 'FAILED')}` (dt: {dt_str})",
             ""
         ]
 

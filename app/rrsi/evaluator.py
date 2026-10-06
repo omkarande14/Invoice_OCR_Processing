@@ -158,19 +158,25 @@ class StatisticalEvaluator:
                 exp_val = gt.get(f)
                 act_val = pred.get(f)
 
-                # Hallucination check: expected is null, actual is non-null
-                if exp_val is None or str(exp_val).strip() == "":
-                    if act_val is not None and str(act_val).strip() != "":
+                # UNANNOTATED ground truth: field has not been reviewed by human annotator; skip scoring
+                if str(exp_val).strip() in ("UNANNOTATED", "__UNANNOTATED__"):
+                    continue
+
+                # ABSENT ground truth: verified by human annotator to be physically absent from source document
+                is_absent = (exp_val is None or str(exp_val).strip() in ("", "None", "ABSENT", "__ABSENT__"))
+                if is_absent:
+                    # If pipeline extracted a non-empty, non-absent value, flag hallucination
+                    if act_val is not None and str(act_val).strip() not in ("", "None", "ABSENT"):
                         field_stats[f]["hallucinations"] += 1
                         failure_counts[ExtractionErrorClass.HALLUCINATION.value] += 1
                         fail_rec = FailureDetail(
                             primary_class=ExtractionErrorClass.HALLUCINATION,
                             field_name=f,
-                            expected=None,
+                            expected="ABSENT",
                             actual=act_val,
                             file_id=doc_id,
                             severity="low",
-                            context_message=f"Hallucination on '{f}': expected null, extracted '{act_val}'"
+                            context_message=f"Hallucination on '{f}': field is ABSENT from document, but pipeline extracted '{act_val}'"
                         )
                         failures.append(fail_rec)
                         doc_failures.append(fail_rec)

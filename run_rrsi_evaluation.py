@@ -42,20 +42,36 @@ from app.rrsi.stats import wilson_interval
 
 import tempfile
 
-def load_ground_truths(gt_dir: Path):
-    """Loads all ground truth files in data/ground_truth."""
+def load_ground_truths(gt_dir: Path) -> Tuple[List[dict], List[Tuple[str, str]]]:
+    """
+    Loads all valid ground truth evaluation schema files in gt_dir (*_expected.json).
+    Returns (canonical_gts, excluded_files_with_reasons).
+    """
     gts = []
-    for f in gt_dir.glob("*.json"):
+    excluded = []
+    for f in sorted(gt_dir.glob("*.json")):
+        if f.name.endswith("_metadata.json"):
+            excluded.append((f.name, "sidecar metadata file (not evaluation schema)"))
+            continue
+        if f.name.startswith("pdf_ground_truth"):
+            excluded.append((f.name, "legacy unnormalized raw PDF extractor dump without line-item schema"))
+            continue
         try:
             with open(f, "r", encoding="utf-8") as fp:
                 data = json.load(fp)
-                if isinstance(data, list):
-                    gts.extend(data)
-                elif isinstance(data, dict):
+                if isinstance(data, dict) and data.get("invoice_number") and data.get("items"):
                     gts.append(data)
+                elif isinstance(data, list):
+                    valid_items = [d for d in data if isinstance(d, dict) and d.get("invoice_number") and d.get("items")]
+                    if valid_items:
+                        gts.extend(valid_items)
+                    else:
+                        excluded.append((f.name, "list without canonical invoice schema (missing invoice_number or items)"))
+                else:
+                    excluded.append((f.name, "schema missing mandatory invoice_number or items structure"))
         except Exception as e:
-            print(f"Warning loading {f.name}: {e}")
-    return gts
+            excluded.append((f.name, f"JSON parse error: {e}"))
+    return gts, excluded
 
 
 def find_image_for_gt(gt: dict, project_root: Path) -> Optional[Path]:
@@ -142,9 +158,13 @@ def run_benchmark_audit():
     orchestrator = RRSIOrchestrator()
     private_gt = PROJECT_ROOT / "data_private" / "ground_truth"
     gt_dir = private_gt if private_gt.exists() else PROJECT_ROOT / "data" / "ground_truth"
-    gts = load_ground_truths(gt_dir)
+    gts, excluded = load_ground_truths(gt_dir)
 
-    print(f"Loaded {len(gts)} ground truth annotation files from: {gt_dir}")
+    print(f"Loaded {len(gts)} canonical ground truth evaluation files from: {gt_dir}")
+    if excluded:
+        print(f"Excluded {len(excluded)} non-evaluation JSON files from benchmark:")
+        for fname, reason in excluded:
+            print(f"  - {fname}: Excluded ({reason})")
     if not gts:
         print("[!] No ground truth files found. Ensure data/ground_truth contains JSON files.")
         return
@@ -186,18 +206,14 @@ def run_benchmark_audit():
 
     print("\n[+] Audit Metrics Summary (Live Pipeline Execution on Real Images):")
     print(f"    Total Invoices Processed: {metrics.sample_count}")
-    print(f"    Overall Macro Accuracy:   {metrics.macro_accuracy:.2f}%")
-    print(f"    Overall Macro F1-Score:   {metrics.macro_f1:.2f}%")
     print(f"    Table Cell-Level F1:      {metrics.table_cell_f1:.4f}")
     print(f"    Table Row-Level F1:       {metrics.table_row_f1:.4f}")
     print(f"    Arithmetic Consistency:   {metrics.arithmetic_consistency_pct:.2f}%")
     print(f"    Document Inconsistent GT: {metrics.document_inconsistent_pct:.2f}%")
     print(f"    Total Execution Time:     {total_pipeline_time:.2f}s ({total_pipeline_time / metrics.sample_count:.2f}s / invoice)")
-    ci_low, ci_high = wilson_interval(int(round(metrics.macro_accuracy * metrics.sample_count / 100)), metrics.sample_count)
-    print(f"    Macro 95% Wilson CI:      [{ci_low*100:.1f}%, {ci_high*100:.1f}%] (N={metrics.sample_count})")
 
     # 1. Per-Field Precision / Recall / F1 Table
-    print("\n[+] Per-Field Extraction Performance (Wilson Score Confidence Intervals):")
+    print("\n[+] Per-Field Extraction Performance (Wilson Score CIs - Note: Does Not Account for Cross-Field Correlation):")
     print("-" * 105)
     print(f"{'Field Name':<22} | {'Exp':<5} | {'Corr':<5} | {'Hall':<5} | {'Prec':<7} | {'Recall':<7} | {'F1':<7} | {'Acc':<7} | {'Wilson 95% CI':<16}")
     print("-" * 105)
@@ -262,6 +278,19 @@ def run_benchmark_audit():
     for area, status in stagnation.items():
         stag_icon = "[STAGNANT] Shift Area" if status["is_stagnant"] else "[ACTIVE]"
         print(f"    * {area:<25} : {status['consecutive_failures']} consecutive fails | {stag_icon}")
+
+    # Descriptive Only Section (Moved from top per 0.7.5: not valid at small N)
+    from app.rrsi.stats import cluster_bootstrap_mean
+    doc_accuracies = []
+    for doc_id, doc_res in metrics.doc_results.items():
+        outcomes = list(doc_res.field_outcomes.values())
+        doc_acc = (sum(1 for o in outcomes if o) / len(outcomes) * 100.0) if outcomes else 0.0
+        doc_accuracies.append(doc_acc)
+
+    agg_boot = cluster_bootstrap_mean(doc_accuracies, n_resamples=10000, seed=42)
+    print("\n[+] Descriptive Only - Not Valid at Small Sample Size (N=2) (Note: Not statistically meaningful below ~10 clusters):")
+    print(f"    Overall Macro Accuracy:   {metrics.macro_accuracy:.2f}% (Invoice-Cluster Bootstrap 95% CI: [{agg_boot['ci_lower']:.1f}%, {agg_boot['ci_upper']:.1f}%] - not statistically meaningful below ~10 clusters)")
+    print(f"    Overall Macro F1-Score:   {metrics.macro_f1:.2f}%")
 
     print("\n" + "=" * 75)
 

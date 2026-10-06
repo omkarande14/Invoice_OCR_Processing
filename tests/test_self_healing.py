@@ -134,7 +134,7 @@ def test_mislabeled_subtotal_grand_total_reconciliation():
     # Must be corrected to 1050.0
     assert fin["grand_total"] == 1050.0
 
-def test_due_date_inference_from_credit_terms():
+def test_due_date_not_synthesized_from_credit_terms():
     lines = [
         {"text": "Invoice Date: 10/08/2026"},
         {"text": "Payment Terms: Credit 20 Days"},
@@ -149,5 +149,5 @@ def test_due_date_inference_from_credit_terms():
     )
 
     meta = res["meta"]
-    # 10/08/2026 + 20 days = 30/08/2026
-    assert meta["due_date"] == "30/08/2026"
+    # Due date must NOT be synthesized from credit terms; only reported when explicitly printed
+    assert meta["due_date"] is None

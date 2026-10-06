@@ -1,4 +1,69 @@
 {
+  "version": "1.0.0",
+  "description": "Git-safe anonymized benchmark manifest with template-isolated split partitioning",
+  "total_documents": 53,
+  "split_summary": {
+    "dev": 23,
+    "locked_test": 15,
+    "selection": 15
+  },
+  "template_groups_count": 24,
+  "buyer_entities_count": 16,
+  "annotation_queue": [
+    "INV_3c5a77ac",
+    "INV_d7f081e3",
+    "INV_7200a8d1",
+    "INV_eb98bc06",
+    "INV_81046572",
+    "INV_00b9f774",
+    "INV_4cc9f3ad",
+    "INV_d822b694",
+    "INV_d05ac940",
+    "INV_9782cb20",
+    "INV_ec2daa9d",
+    "INV_deea4e74",
+    "INV_abdc3c30",
+    "INV_97d62746",
+    "INV_38301e52",
+    "INV_bc325113",
+    "INV_182ee202",
+    "INV_f2f33f5f",
+    "INV_8e40a2bd",
+    "INV_cbbd7b20",
+    "INV_0f99d813",
+    "INV_efb5758d",
+    "INV_8aa742ac",
+    "INV_ff06d5f2",
+    "INV_2d640122",
+    "INV_bfbe0b41",
+    "INV_f1375513",
+    "INV_683977e5",
+    "INV_ff73bd8e",
+    "INV_5e2f3610",
+    "INV_fd02fd54",
+    "INV_a5c0ae6a",
+    "INV_e92ad79d",
+    "INV_bf820006",
+    "INV_22909692",
+    "INV_2fa979eb",
+    "INV_3f93ff61",
+    "INV_9d1a66d2",
+    "INV_adca903d",
+    "INV_ab88b109",
+    "INV_39e785ea",
+    "INV_000b1f0b",
+    "INV_0281dde0",
+    "INV_8acc1d46",
+    "INV_35e12582",
+    "INV_d8638369",
+    "INV_6adebc7c",
+    "INV_7abaa6d8",
+    "INV_942bb99d",
+    "INV_e627a21d",
+    "INV_548c01b3",
+    "INV_e02c31bb",
+    "INV_5913d3da"
+  ],
   "manifest": [
     {
       "doc_id": "INV_fd02fd54",
@@ -6,8 +71,9 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": true
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "fd02fd54732eebce8371140fda73d74a4fdcb1e31db77489268a22e7856e1406"
     },
     {
       "doc_id": "INV_a5c0ae6a",
@@ -15,44 +81,49 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": true
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "a5c0ae6ad28745ddd3ec8edeb82e608046c322dce622e3f351b4c8912c7f2939"
     },
     {
       "doc_id": "INV_3c5a77ac",
       "template_group": "T03",
-      "split": "dev",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_ac1508b567",
+      "image_sha256": "3c5a77accc55c2b5d9c43109171e749109fb1af74e592387f7eccabbad754695"
     },
     {
       "doc_id": "INV_d7f081e3",
       "template_group": "T04",
-      "split": "dev",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 2,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "d7f081e3d0b0acd0e7326214a3cc873b5411d1a60dfaa1eefe485d2535b3eec7"
     },
     {
       "doc_id": "INV_7200a8d1",
       "template_group": "T05",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "7200a8d156c0e9f1e9818199f9f837f2dc5cfc132d2e1ae3ba16c16c30a093b1"
     },
     {
       "doc_id": "INV_eb98bc06",
       "template_group": "T06",
-      "split": "dev",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_ae0f1aa6fa",
+      "image_sha256": "eb98bc063bb3ea0016be3d3387d41ad4170e39b3d6d733a1b09046314d5e205a"
     },
     {
       "doc_id": "INV_e92ad79d",
@@ -60,8 +131,9 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": true
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "e92ad79da93f9b0d3d115c89b8805fef9e49677ccb14a92383e56a38cb8ac9e7"
     },
     {
       "doc_id": "INV_81046572",
@@ -69,17 +141,19 @@
       "split": "selection",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "81046572e1dbdd01e21ad3ab38f3dd546df039912259605879b056d5297011af"
     },
     {
       "doc_id": "INV_00b9f774",
       "template_group": "T09",
-      "split": "selection",
+      "split": "locked_test",
       "tier": "Tier_B",
       "page_count": 5,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_a65f9386a4",
+      "image_sha256": "00b9f774d2a1ff82e30853ac1432e4b16e94abb35b66c928080fa0148967bf79"
     },
     {
       "doc_id": "INV_4cc9f3ad",
@@ -87,8 +161,9 @@
       "split": "locked_test",
       "tier": "Tier_B",
       "page_count": 2,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "4cc9f3ad06e9be25a719daa9805cf79032686ddc6081fd8c112d90eb7a918574"
     },
     {
       "doc_id": "INV_bc325113",
@@ -96,8 +171,9 @@
       "split": "locked_test",
       "tier": "Tier_B",
       "page_count": 2,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "bc325113f1e3f0dd7c39612ad8b0cbaf54fc182b6e20c18b7611c15689a6cb00"
     },
     {
       "doc_id": "INV_bf820006",
@@ -105,8 +181,9 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 2,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "bf820006c8e31d1896281b7a971e3a6fb2e1c9383b8b2d598c28da98959aa494"
     },
     {
       "doc_id": "INV_22909692",
@@ -114,8 +191,9 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 2,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "2290969279c614c20797f2cd1e822a4b2d150d6323f899680e679ea26a54aa00"
     },
     {
       "doc_id": "INV_2fa979eb",
@@ -123,8 +201,9 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 2,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "2fa979eb3267443a403c4d2d595970e515c23eaf8884b25030fc4e76748d2422"
     },
     {
       "doc_id": "INV_3f93ff61",
@@ -132,8 +211,9 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 2,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "3f93ff611663ec6ff8702d5f829d2a469b010814e72e1be072509b930f4cc629"
     },
     {
       "doc_id": "INV_9d1a66d2",
@@ -141,71 +221,79 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_86f1780bb4",
+      "image_sha256": "9d1a66d2f5f34a85f5a0226435e192f375b77862b496f47be9e71bfed078cbce"
     },
     {
       "doc_id": "INV_adca903d",
       "template_group": "T13",
-      "split": "selection",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "adca903d1abe8f91829fd00fe23a24d267bc3b391123c30ab381332981d4dae6"
     },
     {
       "doc_id": "INV_ab88b109",
       "template_group": "T13",
-      "split": "selection",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_fe83e52792",
+      "image_sha256": "ab88b109a1d9c0db88927926b5439963ced5f1c47c036e31ba93dead3725c002"
     },
     {
       "doc_id": "INV_39e785ea",
       "template_group": "T13",
-      "split": "selection",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_0e43588b08",
+      "image_sha256": "39e785ea9f0b5fa0378215221baeeeaedda859035e2bea007fe6763de9e328d4"
     },
     {
       "doc_id": "INV_000b1f0b",
       "template_group": "T13",
-      "split": "selection",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_821a71561f",
+      "image_sha256": "000b1f0b83d13c646a1efcda49404fab653a10cfb24b263aa5fdcfd2dcd66e9e"
     },
     {
       "doc_id": "INV_0281dde0",
       "template_group": "T13",
-      "split": "selection",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_821a71561f",
+      "image_sha256": "0281dde09cb7f061c39da1a7f09e32381ca30c9b1da5f5849bfc538d9b74cea7"
     },
     {
       "doc_id": "INV_8acc1d46",
       "template_group": "T13",
-      "split": "selection",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_00ec9272df",
+      "image_sha256": "8acc1d4694e5e3ace15d5205f14b287e99045cc0c99f5f9b07b3327a88d15878"
     },
     {
       "doc_id": "INV_35e12582",
       "template_group": "T13",
-      "split": "selection",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "35e1258224b33753a70bbb67b14acc7cead9d247ab221c721ad364e3b9f40be4"
     },
     {
       "doc_id": "INV_d8638369",
@@ -213,8 +301,9 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "d8638369f8307f5af6158745382861f11f40064786671949a5f2c8f128a00272"
     },
     {
       "doc_id": "INV_6adebc7c",
@@ -222,71 +311,79 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_c3d44d9550",
+      "image_sha256": "6adebc7c11e6dccd2265400b87849ce35d7b2e05b3f8f82aff9ffd03213e6428"
     },
     {
       "doc_id": "INV_d822b694",
       "template_group": "T15",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "d822b6947c543dbcb361c0d1ff39f6b6b22bbee852cd572fd17b26acbd1d6c55"
     },
     {
       "doc_id": "INV_7abaa6d8",
       "template_group": "T16",
-      "split": "locked_test",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "7abaa6d8d36e300e8adc7cf02e5d6bd157ebdd8b1a1140eb5bf6c1b534a39832"
     },
     {
       "doc_id": "INV_942bb99d",
       "template_group": "T16",
-      "split": "locked_test",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_0ce4f23c4a",
+      "image_sha256": "942bb99d30648e93431362a0a684c67cef128306b7f96799a781bcfb1eed189f"
     },
     {
       "doc_id": "INV_e627a21d",
       "template_group": "T16",
-      "split": "locked_test",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 2,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_e31f305610",
+      "image_sha256": "e627a21d72f91ceba935e56c69ab39d2ec938d15feb5bee3fa89380d36035461"
     },
     {
       "doc_id": "INV_548c01b3",
       "template_group": "T16",
-      "split": "locked_test",
+      "split": "dev",
       "tier": "Tier_B",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_06377628cc",
+      "image_sha256": "548c01b3ec8cc4645a27b65a3e3c7e04f167d94cad3bbedcbc3b945199c40b7d"
     },
     {
       "doc_id": "INV_e02c31bb",
       "template_group": "T16",
-      "split": "locked_test",
+      "split": "dev",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "e02c31bb2c7165f5512f787c5925479d1af48867b37754810b53c558546a0068"
     },
     {
       "doc_id": "INV_d05ac940",
       "template_group": "T17",
-      "split": "selection",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_185a91690c",
+      "image_sha256": "d05ac94061aaf16f81191c53dc1c194f76e0e63dd9c0817b772150a23624832a"
     },
     {
       "doc_id": "INV_9782cb20",
@@ -294,143 +391,159 @@
       "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "9782cb204422db2257084417000aced9cfb88f78d9d27118fc73c38f5d81ba31"
     },
     {
       "doc_id": "INV_ec2daa9d",
       "template_group": "T19",
-      "split": "locked_test",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "ec2daa9d4d1b2d09202f6823c74b5fe1f5f9332bdb7c17e83ad3f753576e185f"
     },
     {
       "doc_id": "INV_182ee202",
       "template_group": "T19",
-      "split": "locked_test",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "182ee202de61a41dc0b691349a98976fb323b0c670bb668e9b36da9ef98ee66e"
     },
     {
       "doc_id": "INV_deea4e74",
       "template_group": "T20",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "deea4e746b303b8b1d4c361383de1c6ab9533f7ea497bdcd032472140d0ef711"
     },
     {
       "doc_id": "INV_f2f33f5f",
       "template_group": "T20",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "f2f33f5f861fc81597427d04aacdbb9e85f16c5cf90be380a8d6aedad3af9abc"
     },
     {
       "doc_id": "INV_8e40a2bd",
       "template_group": "T20",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "8e40a2bd8491ab10f0b45e0c036571bf7bb1bed80af1e0178bfd1f834b625e07"
     },
     {
       "doc_id": "INV_cbbd7b20",
       "template_group": "T20",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "cbbd7b20048f57e59bf11e0b94b66abd9b46a7050cde21efed8eeea878b2b07a"
     },
     {
       "doc_id": "INV_0f99d813",
       "template_group": "T20",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "0f99d8133319751073d56eeeba2a2eec0a0ac3a038c9884a1dba2bef179e94b2"
     },
     {
       "doc_id": "INV_efb5758d",
       "template_group": "T20",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "efb5758d5c2d8973d6f95f93baebbc368dbb00d3b6b02e2b30a04e29630cd09d"
     },
     {
       "doc_id": "INV_8aa742ac",
       "template_group": "T20",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "8aa742ac3b475549d5cd29242ceab5be7f3a3482584ef21b6438b8ddb7ba8ac6"
     },
     {
       "doc_id": "INV_ff06d5f2",
       "template_group": "T20",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "ff06d5f2499e5cbac8be000734698fee617539b75d701a3f298112eca3410f88"
     },
     {
       "doc_id": "INV_2d640122",
       "template_group": "T20",
-      "split": "dev",
+      "split": "selection",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "2d6401223dbabb16c98e253a4253b213d8c58a234ba7fac449082108ed3692b3"
     },
     {
       "doc_id": "INV_abdc3c30",
       "template_group": "T21",
-      "split": "dev",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_e18eca69bc",
+      "image_sha256": "abdc3c3068c2ff704fbfdd4a65091b1c98552aa6030211405f7709947255da28"
     },
     {
       "doc_id": "INV_bfbe0b41",
       "template_group": "T21",
-      "split": "dev",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "bfbe0b4132ce2cfd3bd4ac6956b2da02584f32602f138e5b725e22a81c74e9c2"
     },
     {
       "doc_id": "INV_f1375513",
       "template_group": "T21",
-      "split": "dev",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_e18eca69bc",
+      "image_sha256": "f137551349fb51c80476d10aa6211c4744f60b8f37f1782c8df333f148bf6e95"
     },
     {
       "doc_id": "INV_683977e5",
       "template_group": "T21",
-      "split": "dev",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "683977e534e52f4ac644b46b5221c5b33abb2d2b7649dd8f93888fb969e805f2"
     },
     {
       "doc_id": "INV_97d62746",
@@ -438,35 +551,39 @@
       "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_e68d729c7e",
+      "image_sha256": "97d627466e0f0e8d78754ac8ad40503045cd3e737f287c67d7485cdf93c84ccd"
     },
     {
       "doc_id": "INV_38301e52",
       "template_group": "T23",
-      "split": "selection",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "38301e52c489eb0671b8325136b8e22815d2f7287737e1f53d5a364e8d6279ad"
     },
     {
       "doc_id": "INV_ff73bd8e",
       "template_group": "T23",
-      "split": "selection",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "ff73bd8e6d65b5e4855eda06145876fc4700b6c5021d12823a174473cddb10d2"
     },
     {
       "doc_id": "INV_5e2f3610",
       "template_group": "T23",
-      "split": "selection",
+      "split": "locked_test",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": false,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "5e2f361025fde1138bc19f04ee11c881b8d0e3e3c3dee7fcccdc9b770f512afb"
     },
     {
       "doc_id": "INV_5913d3da",
@@ -474,8 +591,9 @@
       "split": "dev",
       "tier": "Tier_A",
       "page_count": 1,
-      "annotation_status": "unannotated",
-      "is_contaminated": false
+      "is_contaminated": true,
+      "buyer_id": "BUYER_94a0c8c545",
+      "image_sha256": "5913d3dad26b2016a2060d0d7c6d4be248ba54a01d85a666d79d83d44412c321"
     }
   ]
 }

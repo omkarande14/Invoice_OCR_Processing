@@ -28,6 +28,7 @@ PHONE_REGEX = re.compile(r"\b(?:\+91[\-\s]?)?[6-9]\d{9}\b|\b0\d{2,4}[\-\s]?\d{6,
 SYNTHETIC_WHITELIST = {
     "27AAPFU0939F1ZV",  # Standard statutory dummy test GSTIN
     "27AAPFU0939F1ZW",  # Intentional invalid test GSTIN
+    "99AAPFU0939F1ZV",  # Intentional invalid state test GSTIN
     "AAPFU0939F",       # Dummy test PAN
     "020-00000000",
     "9999999999"
@@ -163,31 +164,38 @@ def scan_full_history() -> bool:
         msg_violations = scan_text_lines(res_msg.stdout, f"commit {commit[:7]} message", salt, forbidden_hashes)
         violations.extend(msg_violations)
 
-        # Check all blobs in commit
-        res_tree = subprocess.run(["git", "ls-tree", "-r", commit], capture_output=True, text=True)
-        for line in res_tree.stdout.splitlines():
-            parts = line.split()
-            if len(parts) >= 4 and parts[1] == "blob":
-                blob_hash = parts[2]
-                file_path = line.split(maxsplit=3)[3].strip()
+    # Walk every blob object reachable from any ref
+    res_objs = subprocess.run(["git", "rev-list", "--objects", "--all"], capture_output=True, text=True)
+    for line in res_objs.stdout.splitlines():
+        parts = line.strip().split(maxsplit=1)
+        if not parts:
+            continue
+        obj_hash = parts[0]
+        obj_path = parts[1] if len(parts) > 1 else ""
 
-                norm_path = file_path.replace("\\", "/")
-                for forbidden in FORBIDDEN_PATH_SUBSTRINGS:
-                    if forbidden in norm_path:
-                        violations.append(f"HISTORICAL FORBIDDEN FILE: '{file_path}' in commit {commit[:7]}")
+        # Check object type
+        res_type = subprocess.run(["git", "cat-file", "-t", obj_hash], capture_output=True, text=True)
+        if res_type.stdout.strip() != "blob":
+            continue
 
-                if blob_hash in scanned_blobs:
-                    continue
-                scanned_blobs.add(blob_hash)
+        if obj_path:
+            norm_path = obj_path.replace("\\", "/")
+            for forbidden in FORBIDDEN_PATH_SUBSTRINGS:
+                if forbidden in norm_path:
+                    violations.append(f"HISTORICAL FORBIDDEN FILE: '{obj_path}' ({obj_hash[:7]})")
 
-                if any(file_path.endswith(ext) for ext in [".png", ".jpg", ".pdf", ".pyc", ".zip"]):
-                    continue
-                if file_path in ["scripts/check_git_hygiene.py", "config/forbidden_hashes.json"]:
-                    continue
+        if obj_hash in scanned_blobs:
+            continue
+        scanned_blobs.add(obj_hash)
 
-                res_blob = subprocess.run(["git", "cat-file", "-p", blob_hash], capture_output=True, text=True, errors="ignore")
-                blob_violations = scan_text_lines(res_blob.stdout, f"blob {blob_hash[:7]} ({file_path}) in {commit[:7]}", salt, forbidden_hashes)
-                violations.extend(blob_violations)
+        if any(obj_path.endswith(ext) for ext in [".png", ".jpg", ".pdf", ".pyc", ".zip"]):
+            continue
+        if obj_path in ["scripts/check_git_hygiene.py", "config/forbidden_hashes.json"]:
+            continue
+
+        res_blob = subprocess.run(["git", "cat-file", "-p", obj_hash], capture_output=True, text=True, errors="ignore")
+        blob_violations = scan_text_lines(res_blob.stdout, f"blob {obj_hash[:7]} ({obj_path or 'anonymous'})", salt, forbidden_hashes)
+        violations.extend(blob_violations)
 
     if violations:
         print("[!] FULL GIT HISTORY AUDIT FAILED:")

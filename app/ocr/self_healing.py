@@ -154,22 +154,10 @@ class SelfHealingEngine:
                 healing_log.append(f"Reconciled mislabeled Grand Total: changed {ext_grand_total} (was subtotal) to {calculated_grand_total}")
 
         # ---------------------------------------------------------------------
-        # 3. Due Date Inference from Credit Terms
+        # 3. Due Date: Strict OCR Fidelity (Only report printed dates)
+        # Payment terms are preserved in metadata if needed, but not synthesized
+        # into due_date to prevent hallucinating unprinted dates.
         # ---------------------------------------------------------------------
-        if not meta_repaired.get("due_date") and all_ocr_lines:
-            inv_date_str = meta_repaired.get("invoice_date")
-            if inv_date_str:
-                parsed_inv_date = cls._parse_date(inv_date_str)
-                if parsed_inv_date:
-                    # Scan text lines for credit days terms
-                    for line in all_ocr_lines:
-                        txt = line.get("text", "")
-                        credit_days = parse_credit_terms_days(txt)
-                        if credit_days:
-                            due_dt = parsed_inv_date + timedelta(days=credit_days)
-                            meta_repaired["due_date"] = due_dt.strftime("%d/%m/%Y")
-                            healing_log.append(f"Inferred due date '{meta_repaired['due_date']}' from credit terms: {credit_days} days")
-                            break
 
         # ---------------------------------------------------------------------
         # 4. GSTIN Recovery from Unassigned Tokens

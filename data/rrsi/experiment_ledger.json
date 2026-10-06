@@ -2,8 +2,8 @@
   {
     "proposal_id": "REMOVE-HARDCODES",
     "area": "entity_extraction",
-    "status": "accepted",
-    "process_outcome": "accepted",
+    "status": "open_regression",
+    "process_outcome": "regression_detected",
     "measurement_status": "not_measured",
     "integrity_exempt": true,
     "baseline_accuracy": null,
@@ -14,11 +14,26 @@
     "is_statistically_significant": false,
     "leakage_screen_passed": true,
     "leakage_findings": [],
-    "cost_aware_accepted": false,
+    "cost_aware_accepted": null,
     "latency_delta_seconds": null,
     "vision_fallback_calls": 0,
-    "case_regressions": [],
-    "rejection_reasons": [],
+    "case_regressions": [
+      {
+        "doc_id": "INV_adca903d",
+        "template_group": "T13",
+        "field": "total_gst_amount",
+        "before": "621.84",
+        "after": "0.00",
+        "line_items_count_before": 2,
+        "line_items_count_after": 1,
+        "cause": "Table extractor dropped product row 'LEUKOBAND10*4/6*1ROLLKAM' due to non-numeric unit token 'PCS' colliding with quantity column and evicting numeric quantity '60' into separate row",
+        "evidence_path": "data_private/diff_report_before_after.json",
+        "evidence_crop": "data_private/crops/INV_adca903d_footer.png"
+      }
+    ],
+    "rejection_reasons": [
+      "Open regression on INV_adca903d: total_gst_amount dropped 621.84 -> 0.00 and line item LEUKOBAND omitted."
+    ],
     "pruning_recommendations": [
       "Pruned static hardcoded coordinates, static hospital overrides, and static PAN. Refer to data_private/diff_report_before_after.json for 53-invoice characterization."
     ],

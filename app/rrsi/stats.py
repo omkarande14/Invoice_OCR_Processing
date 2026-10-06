@@ -235,3 +235,55 @@ def mcnemar_test(
         "statistic": float(stat),
         "p_value": p_val
     }
+
+
+def cluster_bootstrap_mean(
+    scores_per_cluster: Union[Dict[str, float], List[float]],
+    n_resamples: int = 10000,
+    confidence: float = 0.95,
+    seed: int = 42
+) -> Dict[str, Any]:
+    """
+    Performs cluster bootstrap for an aggregate metric grouped by cluster (e.g. invoice_id).
+    Resamples clusters with replacement to properly account for correlated within-invoice field outcomes.
+
+    Returns:
+        dict with:
+            mean: Observed sample mean
+            ci_lower: Lower bound of bootstrap percentile CI
+            ci_upper: Upper bound of bootstrap percentile CI
+            std_err: Standard error of bootstrap means
+            n_clusters: Number of clusters (invoices)
+    """
+    rng = np.random.default_rng(seed)
+    if isinstance(scores_per_cluster, dict):
+        vals = np.array(list(scores_per_cluster.values()), dtype=float)
+    else:
+        vals = np.array(scores_per_cluster, dtype=float)
+
+    n = len(vals)
+    if n == 0:
+        return {"mean": 0.0, "ci_lower": 0.0, "ci_upper": 0.0, "std_err": 0.0, "n_clusters": 0}
+    if n == 1:
+        return {"mean": float(vals[0]), "ci_lower": float(vals[0]), "ci_upper": float(vals[0]), "std_err": 0.0, "n_clusters": 1}
+
+    mean_val = float(np.mean(vals))
+    sample_indices = rng.integers(0, n, size=(n_resamples, n))
+    resampled_means = np.take(vals, sample_indices).mean(axis=1)
+
+    alpha = 1.0 - confidence
+    lower_pct = 100.0 * (alpha / 2.0)
+    upper_pct = 100.0 * (1.0 - alpha / 2.0)
+
+    ci_lower = float(np.percentile(resampled_means, lower_pct))
+    ci_upper = float(np.percentile(resampled_means, upper_pct))
+    std_err = float(np.std(resampled_means))
+
+    return {
+        "mean": mean_val,
+        "ci_lower": ci_lower,
+        "ci_upper": ci_upper,
+        "std_err": std_err,
+        "n_clusters": n
+    }
+
