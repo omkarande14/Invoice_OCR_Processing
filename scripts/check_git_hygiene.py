@@ -127,7 +127,7 @@ def check_current_hygiene(specified_files: list[str] = None) -> bool:
             if forbidden in norm_path:
                 violations.append(f"FORBIDDEN FILE TRACKED: '{f_str}' is inside private/ignored directory '{forbidden}'.")
 
-        if f_str in ["scripts/check_git_hygiene.py", "config/forbidden_hashes.json"] or p.suffix.lower() in [".png", ".jpg", ".pdf", ".pyc", ".zip"]:
+        if f_str in ["scripts/check_git_hygiene.py", "config/forbidden_hashes.json"] or p.suffix.lower() in [".png", ".jpg", ".pdf", ".pptx", ".pyc", ".zip"]:
             continue
 
         if p.exists() and p.is_file():
@@ -188,7 +188,7 @@ def scan_full_history() -> bool:
             continue
         scanned_blobs.add(obj_hash)
 
-        if any(obj_path.endswith(ext) for ext in [".png", ".jpg", ".pdf", ".pyc", ".zip"]):
+        if any(obj_path.endswith(ext) for ext in [".png", ".jpg", ".pdf", ".pptx", ".pyc", ".zip"]):
             continue
         if obj_path in ["scripts/check_git_hygiene.py", "config/forbidden_hashes.json"]:
             continue
